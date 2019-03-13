@@ -1,0 +1,16 @@
+/.idea/
+
+/node_modules/
+/.npmignore
+/npm-debug.log
+
+/dist/**/*.spec.d.ts
+/dist/**/*.spec.js
+/dist/**/*.spec.js.map
+/src/**/*.spec.ts
+/tmp/
+/types/
+/.editorconfig
+/.nvmrc
+/tsconfig.json
+/tslint.json
