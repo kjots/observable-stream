@@ -27,6 +27,7 @@
       "always",
       "strict-bound-class-methods"
     ],
-    "trailing-comma": false
+    "trailing-comma": false,
+    "no-unused-expression": false
   }
 }
