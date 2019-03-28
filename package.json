@@ -44,7 +44,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@kjots/stream-observable": "^0.0.1",
+    "@kjots/stream-observable": "^0.0.2",
     "readable-stream": "^3.2.0",
     "rxjs": "^6.4.0"
   }
