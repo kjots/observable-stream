@@ -2,7 +2,8 @@
   "name": "@kjots/observable-stream",
   "version": "0.0.2",
   "description": "Observable Stream",
-  "main": "dist/index",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
