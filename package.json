@@ -41,11 +41,11 @@
     "rimraf": "^2.6.3",
     "through2": "^3.0.1",
     "ts-node": "^8.0.3",
-    "tslint": "^5.14.0",
+    "tslint": "^5.15.0",
     "typescript": "^3.4.1"
   },
   "dependencies": {
-    "@kjots/stream-observable": "^0.0.3",
+    "@kjots/stream-observable": "^0.0.4",
     "readable-stream": "^3.3.0",
     "rxjs": "^6.4.0"
   }
