@@ -1,44 +1,61 @@
 import 'mocha';
 
 import through2 from 'through2';
+import util from 'util';
 
-import { of, throwError } from 'rxjs';
+import { EMPTY, of, throwError } from 'rxjs';
 
 import { expect } from 'chai';
 
 import { observableStream, through } from '.';
 
+const timeout = util.promisify(setTimeout);
+
 context('@kjots/observable-stream', () => {
   describe('observableStream()', () => {
-    it('should create a readable object stream from the provided observable', async () => {
-      // Given
-      const testObservable = of('Test Value 1', 'Test Value 2', 'Test Value 3');
+    context('when the provided observable emits a value', () => {
+      it('should cause the returned stream to emit the value', async () => {
+        // Given
+        const testObservable = of('Test Value');
 
-      // When
-      const results: Array<string> = [];
+        // When
+        let result; observableStream(testObservable).on('data', value => result = value);
 
-      await observableStream(testObservable)
-        .on('data', data => results.push(data));
+        await timeout(0);
 
-      // Then
-      expect(results).to.eql([ 'Test Value 1', 'Test Value 2', 'Test Value 3' ]);
+        // Then
+        expect(result).to.equal('Test Value');
+      });
     });
 
     context('when the provided observable emits an error', () => {
-      it('should cause the returned stream to emit an error', async () => {
+      it('should cause the returned stream to emit the error', async () => {
         // Given
         const testError = new Error('Test Error');
         const testObservable = throwError(testError);
 
         // When
-        let error;
+        let result; observableStream(testObservable).on('error', value => result = value).resume();
 
-        await observableStream(testObservable)
-          .on('error', e => error = e)
-          .on('data', () => {});
+        await timeout(0);
 
         // Then
-        expect(error).to.equal(testError);
+        expect(result).to.equal(testError);
+      });
+    });
+
+    context('when the provided observable completes', () => {
+      it('should cause the returned stream to end', async () => {
+        // Given
+        const testObservable = EMPTY;
+
+        // When
+        let ended = false; observableStream(testObservable).on('end', () => ended = true).resume();
+
+        await timeout(0);
+
+        // Then
+        expect(ended).to.equal(true);
       });
     });
   });
