@@ -25,7 +25,13 @@ export function through<T, R = T>(...transforms: Array<ReadWriteStream>): (obser
     const errorSubject = new Subject<any>();
 
     return merge(errorSubject, streamObservable(
-      transforms.reduce((stream, transform) => stream.on('error', error => errorSubject.error(error)).pipe(transform), observableStream(observable))
+      transforms
+        .reduce((stream, transform) =>
+          stream
+            .on('error', error => errorSubject.error(error))
+            .pipe(transform), observableStream(observable)
+        )
+        .on('end', () => errorSubject.complete())
     ));
   };
 }

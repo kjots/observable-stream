@@ -70,7 +70,7 @@ context('@kjots/observable-stream', () => {
       // When
       const results: Array<string> = [];
 
-      await testObservable
+      testObservable
         .pipe(
           through<string>(
             testTransform('A'),
@@ -80,12 +80,14 @@ context('@kjots/observable-stream', () => {
         )
         .subscribe(value => results.push(value));
 
+      await timeout(0);
+
       // Then
       expect(results).to.eql([ 'Test Value 1.A.B.C', 'Test Value 2.A.B.C', 'Test Value 3.A.B.C' ]);
     });
 
     context('when the provided observable emits an error', () => {
-      it('should cause the returned observable to emit an error', async () => {
+      it('should cause the returned observable to emit the error', async () => {
         // Given
         const testError = new Error('Test Error');
         const testObservable = throwError(testError);
@@ -95,7 +97,7 @@ context('@kjots/observable-stream', () => {
         // When
         let error;
 
-        await testObservable
+        testObservable
           .pipe(
             through<string>(
               testTransform('A'),
@@ -105,13 +107,42 @@ context('@kjots/observable-stream', () => {
           )
           .subscribe({ error: e => error = e });
 
+        await timeout(0);
+
         // Then
         expect(error).to.equal(testError);
       });
     });
 
+    context('when the provided observable completes', () => {
+      it('should cause the returned observable to complete', async () => {
+        // Given
+        const testObservable = EMPTY;
+
+        const testTransform = (x: string) => through2.obj((value, enc, cb) => cb(null, `${ value }.${ x }`));
+
+        // When
+        let complete = false;
+
+        testObservable
+          .pipe(
+            through<string>(
+              testTransform('A'),
+              testTransform('B'),
+              testTransform('C')
+            )
+          )
+          .subscribe({ complete: () => complete = true });
+
+        await timeout(0);
+
+        // Then
+        expect(complete).to.equal(true);
+      });
+    });
+
     context('when a provided transform emits an error', () => {
-      it('should cause the returned observable to emit an error', async () => {
+      it('should cause the returned observable to emit the error', async () => {
         // Given
         const testError = new Error('Test Error');
         const testObservable = of('Test Value 1', 'Test Value 2', 'Test Value 3');
@@ -121,7 +152,7 @@ context('@kjots/observable-stream', () => {
         // When
         let error: any;
 
-        await testObservable
+        testObservable
           .pipe(
             through<string>(
               testTransform('A'),
@@ -130,6 +161,8 @@ context('@kjots/observable-stream', () => {
             )
           )
           .subscribe({ error: e => error = e });
+
+        await timeout(0);
 
         // Then
         expect(error).to.equal(testError);
