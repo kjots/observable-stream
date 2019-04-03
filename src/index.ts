@@ -33,7 +33,7 @@ export function through<T, R = T>(...transforms: Array<ReadWriteStream>): (obser
 function onceify(fn: (this: any, ...args: Array<any>) => any): (this: any, ...args: Array<any>) => any {
   let invoked = false;
 
-  return function(this: any, ...args: Array<any>): any {
+  return function (this: any, ...args: Array<any>): any {
     if (!invoked) {
       invoked = true;
 
