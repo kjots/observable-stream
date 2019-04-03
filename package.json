@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://kjots@github.com/kjots/observable-stream.git"
+    "url": "git+https://github.com/kjots/observable-stream.git"
   },
   "keywords": [
     "observable",
