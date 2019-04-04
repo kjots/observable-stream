@@ -7,18 +7,90 @@ import { merge, Observable, Subject } from 'rxjs';
 import ReadableStream = NodeJS.ReadableStream;
 import ReadWriteStream = NodeJS.ReadWriteStream;
 
+export class ObservableStream<T> extends Readable {
+  private readonly observable: Observable<T>;
+
+  private values!: Array<T>;
+  private error!: any;
+  private complete!: boolean;
+
+  private stopped!: boolean;
+
+  constructor(observable: Observable<T>) {
+    super({ objectMode: true });
+
+    this.observable = observable;
+  }
+
+  public _read() {
+    this.stopped = false;
+
+    if (this.values === undefined) {
+      this._subscribe();
+    }
+
+    this._flush();
+  }
+
+  private _subscribe() {
+    this.values = [];
+
+    this.observable.subscribe({
+      next: (value: T) => {
+        this.values.push(value);
+
+        this._flush();
+      },
+
+      error: (error: any) => {
+        this.error = error;
+
+        this._flush();
+      },
+
+      complete: () => {
+        this.complete = true;
+
+        this._flush();
+      }
+    });
+  }
+
+  private _flush() {
+    if (this.stopped) {
+      return;
+    }
+
+    while (this.values.length !== 0) {
+      this.stopped = !this.push(this.values.shift());
+
+      if (this.stopped) {
+        return;
+      }
+    }
+
+    if (this.error) {
+      this.emit('error', this.error);
+
+      this._close();
+    } else if (this.complete) {
+      this.push(null);
+
+      this._close();
+    }
+  }
+
+  private _close() {
+    delete this.values;
+    delete this.error;
+    delete this.complete;
+
+    this.stopped = true;
+  }
+}
+
 export function observableStream<T>(observable: Observable<T>): ReadableStream {
-  const stream = new Readable({ objectMode: true });
-
-  stream._read = onceify(() =>
-    observable.subscribe(
-      data => stream.push(data),
-      error => stream.emit('error', error),
-      () => stream.push(null)
-    )
-  );
-
-  return stream;
+  return new ObservableStream(observable);
 }
 
 export function through<T, R = T>(...transforms: Array<ReadWriteStream>): (observable: Observable<T>) => Observable<R> {
@@ -34,17 +106,5 @@ export function through<T, R = T>(...transforms: Array<ReadWriteStream>): (obser
         )
         .on('end', () => errorSubject.complete())
     ));
-  };
-}
-
-function onceify(fn: (this: any, ...args: Array<any>) => any): (this: any, ...args: Array<any>) => any {
-  let invoked = false;
-
-  return function (this: any, ...args: Array<any>): any {
-    if (!invoked) {
-      invoked = true;
-
-      return fn.call(this, ...args);
-    }
   };
 }
