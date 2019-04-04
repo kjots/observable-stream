@@ -1,6 +1,7 @@
 import 'mocha';
 
-import through2 from 'through2';
+import { Transform, TransformCallback } from 'stream';
+
 import util from 'util';
 
 import { EMPTY, of, throwError } from 'rxjs';
@@ -10,6 +11,12 @@ import { expect } from 'chai';
 import { observableStream, through } from '.';
 
 const timeout = util.promisify(setTimeout);
+
+const transformStream = (transform: (chunk: any, encoding: string, callback: TransformCallback) => void) => new Transform({
+  objectMode: true,
+
+  transform
+});
 
 context('@kjots/observable-stream', () => {
   describe('observableStream()', () => {
@@ -65,7 +72,7 @@ context('@kjots/observable-stream', () => {
       // Given
       const testObservable = of('Test Value 1', 'Test Value 2', 'Test Value 3');
 
-      const testTransform = (x: string) => through2.obj((value, enc, cb) => cb(null, `${ value }.${ x }`));
+      const testTransform = (x: string) => transformStream((chunk, encoding, callback) => callback(undefined, `${ chunk }.${ x }`));
 
       // When
       const results: Array<string> = [];
@@ -92,7 +99,7 @@ context('@kjots/observable-stream', () => {
         const testError = new Error('Test Error');
         const testObservable = throwError(testError);
 
-        const testTransform = (x: string) => through2.obj((value, enc, cb) => cb(null, `${ value }.${ x }`));
+        const testTransform = (x: string) => transformStream((chunk, encoding, callback) => callback(undefined, `${ chunk }.${ x }`));
 
         // When
         let error;
@@ -119,7 +126,7 @@ context('@kjots/observable-stream', () => {
         // Given
         const testObservable = EMPTY;
 
-        const testTransform = (x: string) => through2.obj((value, enc, cb) => cb(null, `${ value }.${ x }`));
+        const testTransform = (x: string) => transformStream((chunk, encoding, callback) => callback(undefined, `${ chunk }.${ x }`));
 
         // When
         let complete = false;
@@ -147,7 +154,7 @@ context('@kjots/observable-stream', () => {
         const testError = new Error('Test Error');
         const testObservable = of('Test Value 1', 'Test Value 2', 'Test Value 3');
 
-        const testTransform = (x: string) => through2.obj((value, enc, cb) => x === 'B' ? cb(testError) : cb(null, `${ value }.${ x }`));
+        const testTransform = (x: string) => transformStream((chunk, encoding, callback) => x === 'B' ? callback(testError) : callback(undefined, `${ chunk }.${ x }`));
 
         // When
         let error: any;
