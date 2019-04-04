@@ -1,13 +1,14 @@
 import { streamObservable } from '@kjots/stream-observable';
 
-import { Readable } from 'readable-stream';
+import { Readable } from 'stream';
+
 import { merge, Observable, Subject } from 'rxjs';
 
 import ReadableStream = NodeJS.ReadableStream;
 import ReadWriteStream = NodeJS.ReadWriteStream;
 
 export function observableStream<T>(observable: Observable<T>): ReadableStream {
-  const stream = Readable({ objectMode: true });
+  const stream = new Readable({ objectMode: true });
 
   stream._read = onceify(() =>
     observable.subscribe(
