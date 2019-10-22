@@ -1,6 +1,6 @@
 {
   "name": "@kjots/observable-stream",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Observable Stream",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
