@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/kjots/observable-stream#readme",
   "engines": {
-    "node": ">=12.13.0",
-    "npm": ">=6.12.0"
+    "node": ">=12.14.1",
+    "npm": ">=6.13.4"
   },
   "devDependencies": {
     "@kjots/tslint-rules": "^1.4.2",
